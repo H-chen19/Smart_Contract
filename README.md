@@ -1,6 +1,6 @@
 # Smart_Contract
 
-There is three level of starter code in this homework. 
+There are three level of starter code in this homework. 
 
 1. Level 1: AssociateProfitSplitter.sol
 2. Level 2: TieredProfitSplitter.sol
