@@ -1,32 +1,60 @@
 pragma solidity ^0.5.0;
 
-// lvl 1: equal split
-contract AssociateProfitSplitter {
-    // @TODO: Create three payable addresses representing `employee_one`, `employee_two` and `employee_three`.
+// lvl 3: equity plan
+contract DeferredEquityPlan {
+    address human_resources;
 
-    constructor(address payable _one, address payable _two, address payable _three) public {
-        employee_one = _one;
-        employee_two = _two;
-        employee_three = _three;
+    address payable employee; // bob
+    bool active = true; // this employee is active at the start of the contract
+
+    // @TODO: Set the total shares and annual distribution
+    uint total_shares = 1000;
+    uint total_distribution = 250;
+
+    uint start_time = now; // permanently store the time this contract was initialized
+
+    // @TODO: Set the `unlock_time` to be 365 days from now
+    uint unlock_time = now + 365 days; 
+
+    uint public distributed_shares; // starts at 0
+
+    constructor(address payable _employee) public {
+        human_resources = msg.sender;
+        employee = _employee;
     }
 
-    function balance() public view returns(uint) {
-        return address(this).balance;
+    function distribute() public {
+        require(msg.sender == human_resources || msg.sender == employee, "You are not authorized to execute this contract.");
+        require(active == true, "Contract not active.");
+
+        // @TODO: Add "require" statements to enforce that:
+        // 1: `unlock_time` is less than or equal to `now`
+        // 2: `distributed_shares` is less than the `total_shares`
+        require(unlock_time <= now, "Shares have not vested yet!");
+        require(distributed_shares <total_shares, "All shares have been distributed");
+        
+
+        // @TODO: Add 365 days to the `unlock_time`
+        unlock_time += 365 days;
+
+        // @TODO: Calculate the shares distributed by using the function (now - start_time) / 365 days * the annual distribution
+        // Make sure to include the parenthesis around (now - start_time) to get accurate results!
+        distributed_shares = (now - start_time) / 365 days;
+
+        // double check in case the employee does not cash out until after 5+ years
+        if (distributed_shares > 1000) {
+            distributed_shares = 1000;
+        }
     }
 
-    function deposit() public payable {
-        // @TODO: Split `msg.value` into three
-        uint amount = ; // Your code here!
-
-        // @TODO: Transfer the amount to each employee
-        // Your code here!
-
-        // @TODO: take care of a potential remainder by sending back to HR (`msg.sender`)
-        // Your code here!
+    // human_resources and the employee can deactivate this contract at-will
+    function deactivate() public {
+        require(msg.sender == human_resources || msg.sender == employee, "You are not authorized to deactivate this contract.");
+        active = false;
     }
 
+    // Since we do not need to handle Ether in this contract, revert any Ether sent to the contract directly
     function() external payable {
-        // @TODO: Enforce that the `deposit` function is called in the fallback function!
-        // Your code here!
+        revert("Do not send Ether to this contract!");
     }
 }
